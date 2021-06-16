@@ -9,7 +9,8 @@ module.exports = {
     ecmaVersion: 12,
   },
   rules: {
-    'comma-dangle': false,
+    'comma-dangle': 'off',
     'space-before-function-paren': 'off',
+    'prettier.configPath': './.prettierrc',
   },
 };
