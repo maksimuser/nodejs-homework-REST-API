@@ -4,16 +4,20 @@ const {
   validateCreateContact,
   validateUpdateContact,
   validateStatusContact,
-} = require('../../middleware');
+} = require('../../middleware/validationContacts');
+
+const authMiddleware = require('../../middleware/authMiddleware');
 
 const {
   getAll,
   getContact,
   create,
-  remove,
   update,
+  remove,
   updateStatus,
-} = require('../../controllers');
+} = require('../../controllers/contactsController');
+
+router.use(authMiddleware);
 
 router.get('/', getAll);
 router.get('/:contactId', getContact);

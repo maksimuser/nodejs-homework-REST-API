@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-require('../db');
+
 const { Schema } = mongoose;
 
 const contactSchema = new Schema(
@@ -17,6 +17,10 @@ const contactSchema = new Schema(
     favorite: {
       type: Boolean,
       default: false,
+    },
+    owner: {
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: 'user',
     },
   },
   { versionKey: false },
