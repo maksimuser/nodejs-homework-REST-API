@@ -1,7 +1,13 @@
+const fs = require('fs/promises');
+const path = require('path');
+const jimp = require('jimp');
+const pathFile = path.join('public', 'avatars');
+
 const {
   createUser,
   findByEmail,
   updateStatusSubscription,
+  updateAvatar,
 } = require('../services/usersService');
 const { loginAuth, logoutAuth } = require('../services/authService');
 
@@ -14,10 +20,12 @@ const signup = async (req, res, next) => {
   }
   try {
     const newUser = await createUser(req.body);
-    const { email, subscription } = newUser;
+
+    const { email, subscription, avatarURL } = newUser;
+
     return res.status(201).json({
       message: 'success',
-      user: { email, subscription },
+      user: { email, subscription, avatarURL },
     });
   } catch (e) {
     next(e);
@@ -65,10 +73,7 @@ const subscriptionStatus = async (req, res, next) => {
   const userId = req.user.id;
 
   try {
-    const { subscription, email, id } = await updateStatusSubscription(
-      userId,
-      req.body,
-    );
+    const { subscription, email, id } = await updateStatusSubscription(userId, req.body);
 
     return res
       .status(200)
@@ -77,4 +82,33 @@ const subscriptionStatus = async (req, res, next) => {
     next(e);
   }
 };
-module.exports = { signup, login, logout, current, subscriptionStatus };
+
+const avatars = async (req, res, next) => {
+  if (req.file) {
+    const img = await jimp.read(req.file.path);
+    await img
+      .autocrop()
+      .cover(250, 250, jimp.HORIZONTAL_ALIGN_CENTER || jimp.VERTICAL_ALIGN_MIDDLE)
+      .writeAsync(req.file.path);
+
+    await fs.rename(req.file.path, path.join(pathFile, req.file.filename));
+  }
+
+  const localHost = req.headers.host;
+  let avatarURL = req.user.avatarURL;
+  const filePath = path.join(req.file.filename);
+  const url = 'http://' + localHost + '/avatars/' + filePath;
+  avatarURL = url;
+
+  await updateAvatar(req.user.id, avatarURL);
+  res.status(200).json({ avatarURL });
+};
+
+module.exports = {
+  signup,
+  login,
+  logout,
+  current,
+  subscriptionStatus,
+  avatars,
+};
