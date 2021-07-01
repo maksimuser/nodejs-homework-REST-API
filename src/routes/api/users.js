@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
+const upload = require('../../helpers/multer');
 const {
   validateAuth,
   validateSubscription,
@@ -13,6 +14,7 @@ const {
   logout,
   current,
   subscriptionStatus,
+  avatars,
 } = require('../../controllers/usersController');
 
 router.post('/signup', validateAuth, signup);
@@ -26,4 +28,5 @@ router.patch(
 router.post('/logout', authMiddleware, logout);
 router.get('/current', authMiddleware, current);
 
+router.patch('/avatars', authMiddleware, upload.single('avatar'), avatars);
 module.exports = router;
