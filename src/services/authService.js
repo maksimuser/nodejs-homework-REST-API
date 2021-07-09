@@ -10,7 +10,7 @@ const loginAuth = async ({ email, password }) => {
   const user = await findByEmail({ email });
   const validatedPassword = await user?.validatePassword(password);
 
-  if (!user || !validatedPassword) {
+  if (!user || !validatedPassword || !user.verify) {
     return null;
   }
 

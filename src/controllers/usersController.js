@@ -8,6 +8,7 @@ const {
   findByEmail,
   updateStatusSubscription,
   updateAvatar,
+  verifyUser,
 } = require('../services/usersService');
 const { loginAuth, logoutAuth } = require('../services/authService');
 
@@ -104,6 +105,25 @@ const avatars = async (req, res, next) => {
   res.status(200).json({ avatarURL });
 };
 
+const verify = async (req, res, next) => {
+  try {
+    const result = await verifyUser(req.params);
+
+    if (result) {
+      return res.status(200).json({
+        status: 'success',
+        message: 'Verification successful',
+      });
+    } else {
+      return res.status(404).json({
+        message: 'User not found',
+      });
+    }
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports = {
   signup,
   login,
@@ -111,4 +131,5 @@ module.exports = {
   current,
   subscriptionStatus,
   avatars,
+  verify,
 };
