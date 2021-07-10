@@ -8,9 +8,7 @@ const validateAuth = (req, res, next) => {
         tlds: { allow: ['com', 'net'] },
       })
       .required(),
-    password: Joi.string()
-      .pattern(new RegExp('^[a-zA-Z0-9]{3,30}$'))
-      .required(),
+    password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
   });
 
   const validation = schemaAuth.validate(req.body);
@@ -18,9 +16,7 @@ const validateAuth = (req, res, next) => {
   if (validation.error) {
     const [{ context }] = validation.error.details;
     const { label } = context;
-    return res
-      .status(400)
-      .json({ message: `missing required '${label}' field` });
+    return res.status(400).json({ message: `missing required '${label}' field` });
   } else {
     next();
   }
@@ -44,4 +40,25 @@ const validateSubscription = (req, res, next) => {
   }
 };
 
-module.exports = { validateAuth, validateSubscription };
+const validateEmailVerification = (req, res, next) => {
+  const schemaEmailVerification = Joi.object({
+    email: Joi.string()
+      .email({
+        minDomainSegments: 2,
+        tlds: { allow: ['com', 'net'] },
+      })
+      .required(),
+  });
+
+  const validation = schemaEmailVerification.validate(req.body);
+
+  if (validation.error) {
+    return res.status(400).json({
+      message: `missing required field email`,
+    });
+  } else {
+    next();
+  }
+};
+
+module.exports = { validateAuth, validateSubscription, validateEmailVerification };

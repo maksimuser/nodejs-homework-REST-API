@@ -9,6 +9,7 @@ const {
   updateStatusSubscription,
   updateAvatar,
   verifyUser,
+  verificationUser,
 } = require('../services/usersService');
 const { loginAuth, logoutAuth } = require('../services/authService');
 
@@ -124,6 +125,17 @@ const verify = async (req, res, next) => {
   }
 };
 
+const verification = async (req, res, next) => {
+  try {
+    const user = await verificationUser(req.body);
+    if (user.verify) {
+      return res.status(400).json({ message: 'Verification has already been passed' });
+    }
+    return res.status(200).json({ message: 'Verification email sent' });
+  } catch (e) {
+    next(e);
+  }
+};
 module.exports = {
   signup,
   login,
@@ -132,4 +144,5 @@ module.exports = {
   subscriptionStatus,
   avatars,
   verify,
+  verification,
 };

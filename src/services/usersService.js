@@ -49,6 +49,19 @@ const verifyUser = async ({ verificationToken }) => {
   return true;
 };
 
+const verificationUser = async ({ email }) => {
+  const user = await User.findOne({ email });
+  // проверяем user на верификацию
+  if (!user.verify) {
+    try {
+      await sendEmail(user.verifyToken, email);
+    } catch (e) {
+      throw e.message;
+    }
+  }
+  return user;
+};
+
 module.exports = {
   createUser,
   findByEmail,
@@ -57,4 +70,5 @@ module.exports = {
   updateStatusSubscription,
   updateAvatar,
   verifyUser,
+  verificationUser,
 };
