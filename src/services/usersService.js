@@ -1,8 +1,21 @@
 // создание и поиск user
+
+const { nanoid } = require('nanoid');
 const { User } = require('../schema');
+const sendEmail = require('./emailService');
 
 const createUser = async body => {
-  const user = User(body);
+  const verifyToken = nanoid(7);
+  const { email } = body;
+
+  // отправляем email
+  try {
+    await sendEmail(verifyToken, email);
+  } catch (e) {
+    throw e.message;
+  }
+
+  const user = await User({ ...body, verifyToken });
   return await user.save();
 };
 
@@ -25,6 +38,30 @@ const updateStatusSubscription = async (userId, body) => {
 const updateAvatar = async (id, avatarURL) => {
   return await User.updateOne({ _id: id }, { avatarURL });
 };
+
+const verifyUser = async ({ verificationToken }) => {
+  const user = await User.findOne({ verifyToken: verificationToken });
+
+  if (!user) {
+    return false;
+  }
+  await user.updateOne({ verify: true, verifyToken: null });
+  return true;
+};
+
+const verificationUser = async ({ email }) => {
+  const user = await User.findOne({ email });
+  // проверяем user на верификацию
+  if (!user.verify) {
+    try {
+      await sendEmail(user.verifyToken, email);
+    } catch (e) {
+      throw e.message;
+    }
+  }
+  return user;
+};
+
 module.exports = {
   createUser,
   findByEmail,
@@ -32,4 +69,6 @@ module.exports = {
   findById,
   updateStatusSubscription,
   updateAvatar,
+  verifyUser,
+  verificationUser,
 };
