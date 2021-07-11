@@ -96,10 +96,8 @@ const avatars = async (req, res, next) => {
     await fs.rename(req.file.path, path.join(pathFile, req.file.filename));
   }
 
-  const localHost = req.headers.host;
   let avatarURL = req.user.avatarURL;
-  const filePath = path.join(req.file.filename);
-  const url = 'http://' + localHost + '/avatars/' + filePath;
+  const url = `${req.protocol}://${req.headers.host}${req.path}/${req.file.filename}`;
   avatarURL = url;
 
   await updateAvatar(req.user.id, avatarURL);
